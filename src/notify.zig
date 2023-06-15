@@ -5,7 +5,6 @@ const log = std.log;
 
 const c = @cImport(@cInclude("libnotify/notify.h"));
 
-// todo thread-safety?
 var state: struct {
     inited: bool = false,
     succeeded: bool = false,

@@ -3,6 +3,7 @@ local M = {}
 local ffi = require("ffi")
 local C = require("cthulhu.c")
 local jelly = require("infra.jellyfish")("cthulhu")
+local strlib = require("infra.strlib")
 
 local uv = vim.loop
 local api = vim.api
@@ -11,7 +12,7 @@ M.notify = (function()
   local nvim_icon = (function()
     local runtime = os.getenv("VIMRUNTIME")
     if runtime == nil then return end
-    if not vim.endswith(runtime, "/share/nvim/runtime") then return end
+    if not strlib.endswith(runtime, "/share/nvim/runtime") then return end
     local icon = string.format("%s/%s", string.sub(runtime, 1, #runtime - #"/nvim/runtime"), "icons/hicolor/128x128/apps/nvim.png")
     local stat, errmsg, err = uv.fs_stat(icon)
     if stat ~= nil then return icon end
@@ -79,14 +80,26 @@ M.nvim = {
   --dump content of the current buffer into file, including modified parts
   ---@param bufnr number
   ---@param outfile string
+  ---@param start number?
+  ---@param stop number?
   ---@return boolean
-  dump_buffer = function(bufnr, outfile)
+  dump_buffer = function(bufnr, outfile, start, stop)
     vim.validate({ bufnr = { bufnr, "number" }, outfile = { outfile, "string" } })
     if bufnr == 0 then bufnr = api.nvim_get_current_buf() end
-    local len = api.nvim_buf_line_count(bufnr)
-    return C.dump_buffer(bufnr, outfile, len)
+    start = start or 0
+    stop = stop or api.nvim_buf_line_count(bufnr)
+    return C.dump_buffer(bufnr, outfile, start, stop)
   end,
   no_lpl = function() C.no_lpl() end,
+  ---@param bufnr number
+  ---@param lnum number @0-indexed
+  ---@return boolean
+  is_empty_line = function(bufnr, lnum)
+    vim.validate({ bufnr = { bufnr, "number" }, lnum = { lnum, "number" } })
+    if bufnr == 0 then bufnr = api.nvim_get_current_buf() end
+    assert(api.nvim_buf_is_valid(bufnr))
+    return C.is_empty_line(bufnr, lnum)
+  end,
 }
 
 return M
