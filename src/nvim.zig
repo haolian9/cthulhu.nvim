@@ -20,7 +20,6 @@ fn dumpBufferImpl(bufnr: i32, outfile: []const u8, start: i32, stop: i32) !bool 
         const cline = h.ml_get_buf(buf, i, false);
         const line = mem.span(cline);
         try file.writeAll(line);
-        // no considering '\n'
         try file.writeAll("\n");
     }
 
@@ -49,6 +48,9 @@ export fn cthulhu_is_empty_line(bufnr: i32, lnum: i32) bool {
     };
 }
 
-export fn cthulhu_no_lpl() void {
-    h.p_lpl = 0;
+export fn cthulhu_silent() i8 {
+    var silent: i8 = 0;
+    if (h.msg_silent != 0) silent |= 1;
+    if (h.emsg_silent != 0) silent |= 2;
+    return silent;
 }

@@ -1,56 +1,75 @@
 const std = @import("std");
 
 pub fn build(b: *std.build.Builder) !void {
-    // Standard release options allow the person running `zig build` to select
-    // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
-    const mode = b.standardReleaseOptions();
-    const strip = mode != .Debug;
+    const optimize = b.standardOptimizeOption(.{});
+    const target = b.standardTargetOptions(.{});
 
-    const tests_step = b.step("test", "Run library tests");
+    const test_step = b.step("test", "Run library tests");
 
     const submods = [_]struct { so: []const u8, src: []const u8 }{
         .{ .so = "cthulhu-md5", .src = "src/md5.zig" },
     };
 
     inline for (submods) |def| {
-        const lib = b.addSharedLibrary(def.so, def.src, .unversioned);
-        lib.setBuildMode(mode);
-        lib.strip = strip;
-        lib.install();
+        const so = b.addSharedLibrary(.{
+            .name = def.so,
+            .target = target,
+            .root_source_file = .{ .path = def.src },
+            .optimize = optimize,
+        });
+        b.installArtifact(so);
 
-        const tests = b.addTest(def.src);
-        tests_step.dependOn(&tests.step);
+        const t = b.addTest(.{
+            .root_source_file = .{ .path = def.src },
+            .optimize = optimize,
+        });
+        const a = b.addRunArtifact(t);
+        test_step.dependOn(&a.step);
     }
 
     {
-        const lib = b.addSharedLibrary("cthulhu-notify", "src/notify.zig", .unversioned);
-        lib.setBuildMode(mode);
-        lib.strip = strip;
-        lib.linkLibC();
-        lib.linkSystemLibrary("libnotify");
-        lib.install();
-
-        const tests = b.addTest("src/notify.zig");
-        tests.linkLibC();
-        tests.linkSystemLibrary("libnotify");
-        tests_step.dependOn(&tests.step);
+        const so = b.addSharedLibrary(.{
+            .name = "cthulhu-notify",
+            .target = target,
+            .root_source_file = .{ .path = "src/notify.zig" },
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        so.linkSystemLibrary("libnotify");
+        b.installArtifact(so);
+    }
+    {
+        const t = b.addTest(.{
+            .root_source_file = .{ .path = "src/notify.zig" },
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        t.linkSystemLibrary("libnotify");
+        const a = b.addRunArtifact(t);
+        test_step.dependOn(&a.step);
     }
 
     {
-        const lib = b.addSharedLibrary("cthulhu-rime", "src/rime.zig", .unversioned);
-        lib.setBuildMode(mode);
-        lib.strip = strip;
-        lib.linkLibC();
-        lib.linkSystemLibrary("dbus-1");
-        lib.install();
+        const so = b.addSharedLibrary(.{
+            .name = "cthulhu-rime",
+            .target = target,
+            .root_source_file = .{ .path = "src/rime.zig" },
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        so.linkSystemLibrary("dbus-1");
+        b.installArtifact(so);
     }
 
     {
-        const lib = b.addSharedLibrary("cthulhu-nvim", "src/nvim.zig", .unversioned);
-        lib.setBuildMode(mode);
-        lib.strip = strip;
-        lib.linkLibC();
-        lib.addIncludePath("include");
-        lib.install();
+        const so = b.addSharedLibrary(.{
+            .name = "cthulhu-nvim",
+            .target = target,
+            .root_source_file = .{ .path = "src/nvim.zig" },
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        so.addIncludePath(.{ .path = "include" });
+        b.installArtifact(so);
     }
 }

@@ -1,14 +1,16 @@
 local M = {}
 
 local ffi = require("ffi")
+
 local C = require("cthulhu.c")
+local Augroup = require("infra.Augroup")
 local jelly = require("infra.jellyfish")("cthulhu")
 local strlib = require("infra.strlib")
 
 local uv = vim.loop
 local api = vim.api
 
-M.notify = (function()
+do
   local nvim_icon = (function()
     local runtime = os.getenv("VIMRUNTIME")
     if runtime == nil then return end
@@ -38,14 +40,14 @@ M.notify = (function()
     end
   end
 
-  return setmetatable({
+  M.notify = setmetatable({
     low = notify(0),
     normal = notify(1),
     critical = notify(2),
   }, {
     __call = function(cls, ...) return cls.normal(...) end,
   })
-end)()
+end
 
 function M.md5(str)
   assert(str ~= nil)
@@ -55,26 +57,23 @@ function M.md5(str)
   return ffi.string(hex, len)
 end
 
-M.rime = (function()
+do
   local dbus_available = os.getenv("DISPLAY") ~= nil
 
-  return {
+  M.rime = {
     goto_ascii = function()
       if not dbus_available then return jelly.err("not in GUI env") end
 
-      ---@diagnostic disable: undefined-field
       if C.rime_ascii_mode() ~= 1 then jelly.err("failed to set rime to ascii mode") end
     end,
     auto_ascii = function()
       if not dbus_available then return jelly.err("not in GUI env") end
 
-      -- todo: ModeChanged? ctrl-c
-      api.nvim_create_autocmd({ "InsertLeave" }, {
-        callback = function() M.goto_ascii() end,
-      })
+      local aug = Augroup("cthulhu://rime/auto_ascii")
+      aug:repeats("InsertLeave", { callback = function() M.goto_ascii() end })
     end,
   }
-end)()
+end
 
 M.nvim = {
   --dump content of the current buffer into file, including modified parts
@@ -90,7 +89,11 @@ M.nvim = {
     stop = stop or api.nvim_buf_line_count(bufnr)
     return C.dump_buffer(bufnr, outfile, start, stop)
   end,
-  no_lpl = function() C.no_lpl() end,
+  ---@return boolean,boolean @silent, silent!
+  silent = function()
+    local val = C.silent()
+    return bit.band(val, 1) == 1, bit.band(val, 2) == 2
+  end,
   ---@param bufnr number
   ---@param lnum number @0-indexed
   ---@return boolean

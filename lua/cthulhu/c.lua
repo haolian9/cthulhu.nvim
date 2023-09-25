@@ -1,13 +1,14 @@
 local ffi = require("ffi")
-local jelly = require("infra.jellyfish")("cthulhu", vim.log.levels.INFO)
+
 local fs = require("infra.fs")
+local jelly = require("infra.jellyfish")("cthulhu", "info")
 
 ffi.cdef([[
   int cthulhu_notify(const char *summary, const char *body, const char *icon, unsigned int urgency, int timeout);
   void cthulhu_md5hex(const char *str, char *digest[32]);
   int cthulhu_rime_ascii_mode();
   bool cthulhu_dump_buffer(int32_t bufnr, const char *outfile, int32_t start, int32_t stop);
-  void cthulhu_no_lpl();
+  int8_t cthulhu_silent();
   bool cthulhu_is_empty_line(int32_t bufnr, int32_t lnum);
 ]])
 
@@ -36,6 +37,6 @@ return {
   md5hex = function(...) return libs.md5.cthulhu_md5hex(...) end,
   rime_ascii_mode = function(...) return libs.rime.cthulhu_rime_ascii_mode(...) end,
   dump_buffer = function(...) return libs.nvim.cthulhu_dump_buffer(...) end,
-  no_lpl = function() return libs.nvim.cthulhu_no_lpl() end,
+  silent = function() return libs.nvim.cthulhu_silent() end,
   is_empty_line = function(...) return libs.nvim.cthulhu_is_empty_line(...) end,
 }

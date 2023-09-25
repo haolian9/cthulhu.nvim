@@ -42,7 +42,7 @@ export fn cthulhu_notify(summary: [*:0]const u8, body: [*:0]const u8, icon: [*:0
     const noti: *c.NotifyNotification = c.notify_notification_new(summary, body, icon);
     c.notify_notification_set_urgency(noti, blk: {
         const u = std.meta.intToEnum(Urgency, urgency) catch return 0;
-        break :blk @enumToInt(u);
+        break :blk @intFromEnum(u);
     });
     c.notify_notification_set_timeout(noti, timeout);
     // todo: GError instead of null
@@ -58,12 +58,12 @@ test "libnotify: primitive way" {
     defer c.notify_uninit();
 
     const noti: *c.NotifyNotification = c.notify_notification_new("hello", "world", null);
-    c.notify_notification_set_urgency(noti, @enumToInt(Urgency.normal));
+    c.notify_notification_set_urgency(noti, @intFromEnum(Urgency.normal));
     c.notify_notification_set_timeout(noti, std.time.ms_per_s * 2);
     assert(gbool(c.notify_notification_show(noti, null)));
 }
 
 test "libnotify: cthulhu way" {
     defer state.deinit();
-    assert(gbool(cthulhu_notify("世界", "你好", "", @enumToInt(Urgency.normal), 5_000)));
+    assert(gbool(cthulhu_notify("世界", "你好", "", @intFromEnum(Urgency.normal), 5_000)));
 }
