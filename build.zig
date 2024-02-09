@@ -8,6 +8,7 @@ pub fn build(b: *std.build.Builder) !void {
 
     const submods = [_]struct { so: []const u8, src: []const u8 }{
         .{ .so = "cthulhu-md5", .src = "src/md5.zig" },
+        .{ .so = "cthulhu-str", .src = "src/str.zig" },
     };
 
     inline for (submods) |def| {
