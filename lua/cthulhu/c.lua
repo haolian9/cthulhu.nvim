@@ -7,9 +7,10 @@ ffi.cdef([[
   int cthulhu_notify(const char *summary, const char *body, const char *icon, unsigned int urgency, int timeout);
   void cthulhu_md5hex(const char *str, char *digest[32]);
   int cthulhu_rime_ascii_mode();
-  bool cthulhu_dump_buffer(int32_t bufnr, const char *outfile, int32_t start, int32_t stop);
-  int8_t cthulhu_silent();
-  bool cthulhu_is_empty_line(int32_t bufnr, int32_t lnum);
+  bool cthulhu_nvim_dump_buffer(int32_t bufnr, const char *outfile, int32_t start, int32_t stop);
+  int8_t cthulhu_nvim_silent();
+  bool cthulhu_nvim_is_empty_line(int32_t bufnr, int32_t lnum);
+  int64_t cthulhu_str_rfind(const char *haystack, const char *needle);
 ]])
 
 local libs
@@ -36,7 +37,8 @@ return {
   notify = function(...) return libs.notify.cthulhu_notify(...) end,
   md5hex = function(...) return libs.md5.cthulhu_md5hex(...) end,
   rime_ascii_mode = function(...) return libs.rime.cthulhu_rime_ascii_mode(...) end,
-  dump_buffer = function(...) return libs.nvim.cthulhu_dump_buffer(...) end,
-  silent = function() return libs.nvim.cthulhu_silent() end,
-  is_empty_line = function(...) return libs.nvim.cthulhu_is_empty_line(...) end,
+  nvim_dump_buffer = function(...) return libs.nvim.cthulhu_nvim_dump_buffer(...) end,
+  nvim_silent = function() return libs.nvim.cthulhu_nvim_silent() end,
+  nvim_is_empty_line = function(...) return libs.nvim.cthulhu_nvim_is_empty_line(...) end,
+  str_rfind = function(...) return libs.str.cthulhu_str_rfind(...) end,
 }

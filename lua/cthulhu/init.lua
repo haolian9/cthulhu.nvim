@@ -77,31 +77,43 @@ end
 
 M.nvim = {
   --dump content of the current buffer into file, including modified parts
-  ---@param bufnr number
+  ---@param bufnr integer
   ---@param outfile string
-  ---@param start number?
-  ---@param stop number?
+  ---@param start integer?
+  ---@param stop integer?
   ---@return boolean
   dump_buffer = function(bufnr, outfile, start, stop)
-    vim.validate({ bufnr = { bufnr, "number" }, outfile = { outfile, "string" } })
+    assert(type(bufnr) == "number" and type(outfile) == "string")
     if bufnr == 0 then bufnr = api.nvim_get_current_buf() end
     start = start or 0
     stop = stop or api.nvim_buf_line_count(bufnr)
-    return C.dump_buffer(bufnr, outfile, start, stop)
+    return C.nvim_dump_buffer(bufnr, outfile, start, stop)
   end,
   ---@return boolean,boolean @silent, silent!
   silent = function()
-    local val = C.silent()
+    local val = C.nvim_silent()
     return bit.band(val, 1) == 1, bit.band(val, 2) == 2
   end,
-  ---@param bufnr number
-  ---@param lnum number @0-indexed
+  ---@param bufnr integer
+  ---@param lnum integer @0-indexed
   ---@return boolean
   is_empty_line = function(bufnr, lnum)
-    vim.validate({ bufnr = { bufnr, "number" }, lnum = { lnum, "number" } })
+    assert(type(bufnr) == "number" and type(lnum) == "number")
     if bufnr == 0 then bufnr = api.nvim_get_current_buf() end
     assert(api.nvim_buf_is_valid(bufnr))
-    return C.is_empty_line(bufnr, lnum)
+    return C.nvim_is_empty_line(bufnr, lnum)
+  end,
+}
+
+M.str = {
+  ---@param haystack string
+  ---@param needle string
+  ---@return integer?
+  rfind = function(haystack, needle)
+    assert(type(haystack) == "string" and type(needle) == "string")
+    local ret = tonumber(C.str_rfind(haystack, needle))
+    if ret == -1 then return end
+    return ret
   end,
 }
 

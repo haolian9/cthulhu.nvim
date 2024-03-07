@@ -26,7 +26,7 @@ fn dumpBufferImpl(bufnr: i32, outfile: []const u8, start: i32, stop: i32) !bool 
     return true;
 }
 
-export fn cthulhu_dump_buffer(bufnr: i32, outfile: [*:0]const u8, start: i32, stop: i32) bool {
+export fn cthulhu_nvim_dump_buffer(bufnr: i32, outfile: [*:0]const u8, start: i32, stop: i32) bool {
     return dumpBufferImpl(bufnr, mem.span(outfile), start, stop) catch |err| {
         log.err("{}", .{err});
         return false;
@@ -40,7 +40,7 @@ fn isEmptyLineImpl(bufnr: i32, lnum: i32) !bool {
     return cline[0] == 0;
 }
 
-export fn cthulhu_is_empty_line(bufnr: i32, lnum: i32) bool {
+export fn cthulhu_nvim_is_empty_line(bufnr: i32, lnum: i32) bool {
     return isEmptyLineImpl(bufnr, lnum) catch |err| {
         // todo: maybe raise a lua error
         // no better way for now, let it crash
@@ -48,7 +48,7 @@ export fn cthulhu_is_empty_line(bufnr: i32, lnum: i32) bool {
     };
 }
 
-export fn cthulhu_silent() i8 {
+export fn cthulhu_nvim_silent() i8 {
     var silent: i8 = 0;
     if (h.msg_silent != 0) silent |= 1;
     if (h.emsg_silent != 0) silent |= 2;
