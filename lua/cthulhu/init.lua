@@ -16,10 +16,7 @@ do
     if runtime == nil then return end
     if not strlib.endswith(runtime, "/share/nvim/runtime") then return end
     local icon = string.format("%s/%s", string.sub(runtime, 1, #runtime - #"/nvim/runtime"), "icons/hicolor/128x128/apps/nvim.png")
-    local stat, errmsg, err = uv.fs_stat(icon)
-    if stat ~= nil then return icon end
-    if err == "ENOENT" then return end
-    jelly.err(errmsg)
+    if uv.fs_stat(icon) ~= nil then return icon end
   end)() or ""
 
   local function notify(urgency)
