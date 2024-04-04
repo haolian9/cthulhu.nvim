@@ -3,7 +3,7 @@ local M = {}
 local ffi = require("ffi")
 
 local C = require("cthulhu.c")
-local Augroup = require("infra.Augroup")
+local augroups = require("infra.augroups")
 local jelly = require("infra.jellyfish")("cthulhu")
 local strlib = require("infra.strlib")
 
@@ -66,7 +66,7 @@ do
     auto_ascii = function()
       if not dbus_available then return jelly.err("not in GUI env") end
 
-      local aug = Augroup("cthulhu://rime/auto_ascii")
+      local aug = augroups.Augroup("cthulhu://rime/auto_ascii")
       aug:repeats("InsertLeave", { callback = function() M.goto_ascii() end })
     end,
   }
