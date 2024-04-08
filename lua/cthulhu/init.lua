@@ -67,7 +67,7 @@ do
       if not dbus_available then return jelly.err("not in GUI env") end
 
       local aug = augroups.Augroup("cthulhu://rime/auto_ascii")
-      aug:repeats("InsertLeave", { callback = function() M.goto_ascii() end })
+      aug:repeats("InsertLeave", { callback = function() M.rime.goto_ascii() end })
     end,
   }
 end
