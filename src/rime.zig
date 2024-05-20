@@ -30,7 +30,7 @@ fn isInAsciiMode(conn: *c.DBusConnection) bool {
 
     var iter: c.DBusMessageIter = undefined;
     assert(c.dbus_message_iter_init(reply, &iter) == 1);
-    var arg_type = c.dbus_message_iter_get_arg_type(&iter);
+    const arg_type = c.dbus_message_iter_get_arg_type(&iter);
     assert(arg_type == c.DBUS_TYPE_BOOLEAN);
     var val: bool = false;
     c.dbus_message_iter_get_basic(&iter, &val);
