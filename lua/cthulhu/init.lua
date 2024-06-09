@@ -4,10 +4,10 @@ local ffi = require("ffi")
 
 local C = require("cthulhu.c")
 local augroups = require("infra.augroups")
+local iuv = require("infra.iuv")
 local jelly = require("infra.jellyfish")("cthulhu")
 local strlib = require("infra.strlib")
 
-local uv = vim.uv
 local api = vim.api
 
 do
@@ -16,7 +16,7 @@ do
     if runtime == nil then return end
     if not strlib.endswith(runtime, "/share/nvim/runtime") then return end
     local icon = string.format("%s/%s", string.sub(runtime, 1, #runtime - #"/nvim/runtime"), "icons/hicolor/128x128/apps/nvim.png")
-    if uv.fs_stat(icon) ~= nil then return icon end
+    if iuv.fs_stat(icon) ~= nil then return icon end
   end)() or ""
 
   local function notify(urgency)
