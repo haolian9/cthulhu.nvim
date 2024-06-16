@@ -3,20 +3,17 @@ local M = {}
 local ffi = require("ffi")
 
 local C = require("cthulhu.c")
-local augroups = require("infra.augroups")
-local iuv = require("infra.iuv")
-local jelly = require("infra.jellyfish")("cthulhu")
-local strlib = require("infra.strlib")
 
 local api = vim.api
+local uv = vim.uv
 
 do
   local nvim_icon = (function()
     local runtime = os.getenv("VIMRUNTIME")
     if runtime == nil then return end
-    if not strlib.endswith(runtime, "/share/nvim/runtime") then return end
+    if string.sub(runtime, #"/share/nvim/runtime") == "/share/nvim/runtime" then return end
     local icon = string.format("%s/%s", string.sub(runtime, 1, #runtime - #"/nvim/runtime"), "icons/hicolor/128x128/apps/nvim.png")
-    if iuv.fs_stat(icon) ~= nil then return icon end
+    if uv.fs_stat(icon) ~= nil then return icon end
   end)() or ""
 
   local function notify(urgency)
@@ -58,16 +55,10 @@ do
   local dbus_available = os.getenv("DISPLAY") ~= nil
 
   M.rime = {
+    ---@return boolean @succeeded or not
     goto_ascii = function()
-      if not dbus_available then return jelly.err("not in GUI env") end
-
-      if C.rime_ascii_mode() ~= 1 then jelly.err("failed to set rime to ascii mode") end
-    end,
-    auto_ascii = function()
-      if not dbus_available then return jelly.err("not in GUI env") end
-
-      local aug = augroups.Augroup("cthulhu://rime/auto_ascii")
-      aug:repeats("InsertLeave", { callback = function() M.rime.goto_ascii() end })
+      if not dbus_available then error("not in GUI env") end
+      return C.rime_ascii_mode() == 1
     end,
   }
 end

@@ -1,7 +1,6 @@
 local ffi = require("ffi")
 
-local fs = require("infra.fs")
-local jelly = require("infra.jellyfish")("cthulhu", "info")
+local resolve_plugin_root = require("infra.resolve_plugin_root")
 
 ffi.cdef([[
   int cthulhu_notify(const char *summary, const char *body, const char *icon, unsigned int urgency, int timeout);
@@ -15,18 +14,18 @@ ffi.cdef([[
 
 local libs
 do
-  local root = fs.joinpath(vim.fn.stdpath("config"), "cthulhu")
+  local lib_root = string.format("%s/zig-out/lib", resolve_plugin_root("cthulhu"))
 
   local function resolve_path(name)
     if name ~= "libcthulhu" then name = "libcthulhu-" .. name end
-    return fs.joinpath(root, "zig-out/lib", name .. ".so")
+    return string.format("%s/%s.so", lib_root, name)
   end
 
   libs = setmetatable({}, {
     __index = function(t, key)
       local path = resolve_path(key)
       local ok, lib = pcall(ffi.load, path, false)
-      if not ok then return jelly.err("failed to load %s from %s: %s", key, path, lib) end
+      if not ok then error(string.format("failed to load %s from %s: %s", key, path, lib)) end
       t[key] = lib
       return lib
     end,
