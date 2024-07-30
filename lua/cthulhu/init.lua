@@ -91,6 +91,10 @@ M.nvim = {
     assert(api.nvim_buf_is_valid(bufnr))
     return C.nvim_is_empty_line(bufnr, lnum)
   end,
+  last_msg_time = function()
+    local val = C.nvim_last_msg_time()
+    return assert(tonumber(val))
+  end,
 }
 
 M.str = {

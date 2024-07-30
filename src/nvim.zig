@@ -54,3 +54,8 @@ export fn cthulhu_nvim_silent() i8 {
     if (h.emsg_silent != 0) silent |= 2;
     return silent;
 }
+
+export fn cthulhu_nvim_last_msg_time() c_long {
+    if (h.last_msg_hist == null) return 0;
+    return h.last_msg_hist.*.time;
+}

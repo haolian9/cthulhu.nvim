@@ -9,6 +9,7 @@ ffi.cdef([[
   bool cthulhu_nvim_dump_buffer(int32_t bufnr, const char *outfile, int32_t start, int32_t stop);
   int8_t cthulhu_nvim_silent();
   bool cthulhu_nvim_is_empty_line(int32_t bufnr, int32_t lnum);
+  long cthulhu_nvim_last_msg_time();
   int64_t cthulhu_str_rfind(const char *haystack, const char *needle);
 ]])
 
@@ -39,5 +40,6 @@ return {
   nvim_dump_buffer = function(...) return libs.nvim.cthulhu_nvim_dump_buffer(...) end,
   nvim_silent = function() return libs.nvim.cthulhu_nvim_silent() end,
   nvim_is_empty_line = function(...) return libs.nvim.cthulhu_nvim_is_empty_line(...) end,
+  nvim_last_msg_time = function(...) return libs.nvim.cthulhu_nvim_last_msg_time(...) end,
   str_rfind = function(...) return libs.str.cthulhu_str_rfind(...) end,
 }
