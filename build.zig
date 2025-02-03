@@ -15,13 +15,13 @@ pub fn build(b: *std.Build) !void {
         const so = b.addSharedLibrary(.{
             .name = def.so,
             .target = target,
-            .root_source_file = .{ .path = def.src },
+            .root_source_file = b.path(def.src),
             .optimize = optimize,
         });
         b.installArtifact(so);
 
         const t = b.addTest(.{
-            .root_source_file = .{ .path = def.src },
+            .root_source_file = b.path(def.src),
             .optimize = optimize,
         });
         const a = b.addRunArtifact(t);
@@ -32,7 +32,7 @@ pub fn build(b: *std.Build) !void {
         const so = b.addSharedLibrary(.{
             .name = "cthulhu-notify",
             .target = target,
-            .root_source_file = .{ .path = "src/notify.zig" },
+            .root_source_file = b.path("src/notify.zig"),
             .optimize = optimize,
             .link_libc = true,
         });
@@ -41,7 +41,7 @@ pub fn build(b: *std.Build) !void {
     }
     {
         const t = b.addTest(.{
-            .root_source_file = .{ .path = "src/notify.zig" },
+            .root_source_file = b.path("src/notify.zig"),
             .optimize = optimize,
             .link_libc = true,
         });
@@ -54,7 +54,7 @@ pub fn build(b: *std.Build) !void {
         const so = b.addSharedLibrary(.{
             .name = "cthulhu-rime",
             .target = target,
-            .root_source_file = .{ .path = "src/rime.zig" },
+            .root_source_file = b.path("src/rime.zig"),
             .optimize = optimize,
             .link_libc = true,
         });
@@ -66,11 +66,11 @@ pub fn build(b: *std.Build) !void {
         const so = b.addSharedLibrary(.{
             .name = "cthulhu-nvim",
             .target = target,
-            .root_source_file = .{ .path = "src/nvim.zig" },
+            .root_source_file = b.path("src/nvim.zig"),
             .optimize = optimize,
             .link_libc = true,
         });
-        so.addIncludePath(.{ .path = "include" });
+        so.addIncludePath(b.path("include"));
         b.installArtifact(so);
     }
 }
